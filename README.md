@@ -1,6 +1,6 @@
 # BRXBOX ⧉ A Design Model for Synthetic Cognition
 
-Snap together AI bricks, draw your Box as a graph, and see what kind of “little mind” you’ve actually built.
+Snap together AI bricks into BRXgraphs and observe what mind takes shape inside
 
 ---
 
