@@ -11,12 +11,12 @@ BRXBOX is a way to **design AI systems as modular assemblies**, not as single se
 
 Instead of “the AI does X,” BRXBOX gives you:
 
-- **Bricks** – components with a clear role  
+- **BRX (bricks)** – components with a clear role  
   - e.g. OCR engine, LLM, vector database, rules engine, dashboard
-- **Tracks** – the data and control flows between them  
+- **TRX (tracks)** – the data and control flows between them  
   - e.g. `complaint text → embedding → similarity search → LLM summary`
-- **Geometries** – the wiring patterns that shape behavior  
-  - e.g. linear pipeline, feedback loop, many-expert “star”, bus/blackboard
+- **PLX (plex)** – the wiring pattern / topology that shapes behavior  
+  - e.g. line, loop, star, bus/blackboard
 
 You can think of it as:
 
@@ -24,26 +24,31 @@ You can think of it as:
 
 BRXBOX is **framework-agnostic**. You can implement a design in LangChain, LangGraph, CrewAI, DSPy, n8n, or plain Python. BRXBOX only cares about *what the parts are* and *how they connect*.
 
+In one sentence:
+
+> **Your BOX is defined by your BRXgraph: BRX connected by TRX arranged in a PLX.**
+
 ---
 
 ## 1. Core concepts & naming
 
-### 1.1 Bricks, Tracks, BrickGraphs, Boxes
+### 1.1 BRX, TRX, PLX, BRXgraphs, Boxes
 
-- **Brick** – a single module with a clear role, model shape, and interface.  
-- **Track** – a connection describing how data/control moves from one brick to another.  
-- **BrickGraph** – the *blueprint*: a graph of bricks and tracks in a chosen geometry.  
-- **Box** – a *running system* that instantiates a BrickGraph: your actual agent/service.
+- **BRX (bricks)** – single modules with a clear role, model shape, and interface.  
+- **TRX (tracks)** – connections describing how data/control moves from one BRX to another.  
+- **PLX (plex)** – the topology/layout formed by TRX between BRX (line, loop, star, bus…).  
+- **BRXgraph** – the *blueprint*: a graph of BRX and TRX in a chosen PLX.  
+- **BOX** – a *running system* that instantiates a BRXgraph: your actual agent/service.
 
-You design a **BrickGraph**, then realize it as a **Box**.
+You design a **BRXgraph**, then realize it as a **BOX**.
 
 BRXBOX (the project) is the language + patterns you use to do that.
 
 ---
 
-### 1.2 Brick IDs: ROLE.SHAPE.INTERFACE
+### 1.2 BRX IDs: ROLE.SHAPE.INTERFACE
 
-Each brick gets a compact ID:
+Each BRX gets a compact ID:
 
 > `ROLE.SHAPE.INTERFACE`
 
@@ -65,9 +70,9 @@ This naming scheme is easy to read, grep, and copy-paste into configs.
 
 ---
 
-### 1.3 A minimal BrickGraph example
+### 1.3 A minimal BRXgraph example
 
-Here’s a tiny BrickGraph YAML for a simple “sign reader” Box:
+Here’s a tiny BRXgraph YAML for a simple “sign reader” BOX:
 
     bricks:
       - id: PERC.VISION-OCR.FN
@@ -88,17 +93,19 @@ Here’s a tiny BrickGraph YAML for a simple “sign reader” Box:
         type: LINE
         desc: "Pipe recognized text into the LLM"
 
-This BrickGraph defines a very small Box:
+PLX here is a simple **line**.
 
-> image in → OCR brick → LLM brick → explanation out
+This BRXgraph defines a very small BOX:
 
-You can extend this graph with memory bricks, critics, or control loops without changing the core idea.
+> image in → OCR BRX → LLM BRX → explanation out
+
+You can extend this BRXgraph with memory BRX, critics, or control loops without changing the core idea.
 
 ---
 
-## 2. Brick taxonomy cheat sheet
+## 2. BRX taxonomy cheat sheet
 
-Here’s a quick cheat sheet of common brick patterns you can copy into your own designs.
+Here’s a quick cheat sheet of common BRX patterns you can copy into your own designs.
 
 | Role   | Example ID                      | What it does                                       |
 |--------|---------------------------------|----------------------------------------------------|
@@ -113,8 +120,8 @@ Here’s a quick cheat sheet of common brick patterns you can copy into your own
 | MEM    | `MEM.GRAPH.STORE`              | Store entities/relations as a graph                |
 | MEM    | `MEM.EPISODIC.STORE`           | Append-only log of events/interactions             |
 | CTRL   | `CTRL.AGENT-LLM.TOOL`          | LLM agent that calls tools                         |
-| CTRL   | `CTRL.CRITIC-LLM.FN`           | LLM that reviews/evaluates another brick’s output  |
-| CTRL   | `CTRL.ROUTER.FN`               | Route queries to specialized bricks                |
+| CTRL   | `CTRL.CRITIC-LLM.FN`           | LLM that reviews/evaluates another BRX’s output    |
+| CTRL   | `CTRL.ROUTER.FN`               | Route queries to specialized BRX                   |
 | ENV    | `ENV.API.HTTP`                 | Wrap an HTTP API as an environment                 |
 | ENV    | `ENV.FS.LOCAL`                 | Local filesystem surface                           |
 
@@ -124,7 +131,7 @@ You’re free to define your own shapes and roles as long as you’re consistent
 
 ## 3. Memory stacks across time
 
-BRXBOX encourages explicit **time-layered memory** instead of one vague “DB”:
+BRXBOX encourages explicit **time-layered memory** instead of one vague “DB”. You model different kinds of MEM BRX:
 
 1. **Working Memory**  
    - The current context window and scratchpads.  
@@ -141,7 +148,7 @@ BRXBOX encourages explicit **time-layered memory** instead of one vague “DB”
 
 4. **Procedural Memory** – `MEM.PROCEDURAL.STORE`, `CTRL.POLICY`  
    - Skills, workflows, policies, preferences.  
-   - “How this Box tends to behave.”
+   - “How this BOX tends to behave.”
 
 A common pattern:
 
@@ -150,17 +157,17 @@ A common pattern:
 - Semantic → Procedural: adjust policies/defaults based on stable patterns.  
 - Episodic + Semantic + Procedural → Working: retrieve what’s relevant for the current situation.
 
-This stack is implementable with current tools and makes Boxes feel coherent over time.
+This stack is implementable with current tools and makes BOXes feel coherent over time.
 
 ---
 
-## 4. Geometries: how Boxes are wired
+## 4. PLX: how BOXes are wired
 
-Any full system is a **BrickGraph**: a set of bricks connected by tracks arranged in some geometry. A few core shapes:
+Any full system is a **BRXgraph**: a set of BRX connected by TRX arranged in some **PLX** (plex). A few core plexes:
 
-### 4.1 Lines – simple pipelines
+### 4.1 Line PLX – simple pipelines
 
-> `PERC → REASON → GEN`
+    PERC → REASON → GEN
 
 Examples:
 
@@ -171,9 +178,9 @@ Lines are great for “input → interpret → output” tasks.
 
 ---
 
-### 4.2 Loops – control circuits
+### 4.2 Loop PLX – control circuits
 
-> `PERC → CTRL.POLICY → ENV → PERC → …`
+    PERC → CTRL.POLICY → ENV → PERC → …
 
 Examples:
 
@@ -181,43 +188,43 @@ Examples:
 - Game-playing agents.  
 - Continuous monitoring systems.
 
-Loops are where a Box starts to react to its own past actions and ongoing state.
+Loops are where a BOX starts to react to its own past actions and ongoing state.
 
 ---
 
-### 4.3 Stars – many experts, one conductor
+### 4.3 Star PLX – many experts, one conductor
 
 Multiple specialists around a core controller:
 
-> input → many `REASON`/`GEN` experts → `CTRL.ROUTER`/`CTRL.CRITIC` → output
+    input → many REASON/GEN experts → CTRL.ROUTER/CTRL.CRITIC → output
 
 Examples:
 
 - Math specialist + code specialist + safety specialist around a core LLM.  
 - Several domain-tuned LLMs whose answers are fused.
 
-Stars capture “chorus of experts with a conductor” architectures.
+Star PLX captures “chorus of experts with a conductor” architectures.
 
 ---
 
-### 4.4 Bus / Blackboard – shared hub
+### 4.4 Bus / Blackboard PLX – shared hub
 
-Bricks read and write via a shared memory/environment hub:
+BRX read and write via a shared memory/environment hub:
 
-> many bricks ↔ `MEM.*` or `ENV.*` hub
+    many BRX ↔ MEM.* or ENV.* hub
 
 Examples:
 
 - Event bus where all tools publish/subscribe.  
 - Blackboard system where perception, reasoning, and planning all update a shared world model.
 
-Bus/blackboard geometries fit well with multi-agent or multi-skill Boxes.
+Bus/blackboard plexes fit well with multi-agent or multi-skill BOXes.
 
 ---
 
-### 4.5 Triads and Squares – common small patterns
+### 4.5 Small PLX motifs: triads and squares
 
-Some small geometries show up repeatedly:
+Some small plexes show up repeatedly inside bigger BRXgraphs:
 
 - **Perception–Reason–Memory**  
   - `PERC + REASON + MEM`  
@@ -238,26 +245,26 @@ Some small geometries show up repeatedly:
   - `PERC → REASON → ENV → MEM → PERC → …`  
   - Example: an agent that acts, remembers outcomes, and adapts.
 
-You’ll see these motifs inside bigger BrickGraphs all the time.
+You’ll see these PLX motifs inside bigger BRXgraphs all the time.
 
 ---
 
-## 5. Example Boxes
+## 5. Example BOXes
 
 ### 5.1 Street Sign Buddy → Street Sign Lorekeeper
 
-**Box A: Street Sign Buddy**
+**BOX A: Street Sign Buddy**
 
 Goal: read street signs and explain them.
 
-Bricks:
+BRX:
 
 - `PERC.VISION-CNN.FN` – detect and crop signs from camera frames.  
 - `PERC.OCR.FN` – sign crop → text.  
 - `REASON.TEXT-LLM.CHAT` – explain the sign in plain language.  
 - Optional: `GEN.AUDIO.TOOL` – text-to-speech.
 
-BrickGraph geometry: a simple line.
+PLX: a simple **line**.
 
 Flow:
 
@@ -272,11 +279,11 @@ Output:
 
 ---
 
-**Box B: Street Sign Lorekeeper**
+**BOX B: Street Sign Lorekeeper**
 
-Extend the same Box with history + pattern awareness.
+Extend the same BOX with history + pattern awareness.
 
-Add bricks:
+Add BRX:
 
 - `MEM.EPISODIC.STORE` – log each sign encounter (time, place, outcome).  
 - `MEM.GRAPH.STORE` – link signs ↔ streets ↔ tickets ↔ user history.  
@@ -294,15 +301,15 @@ New kind of output:
 
 > “This block has street cleaning Tuesdays 2–4pm. You got a ticket here last month. Parking one block east has been safer for you.”
 
-Same core bricks, different geometry + memory = different *feel*.
+Same core BRX, different PLX + memory = different *feel*.
 
 ---
 
-### 5.2 Music Critic Box
+### 5.2 Music Critic BOX
 
 Goal: listen to a piece of music and explain its structure/theory.
 
-Bricks:
+BRX:
 
 - `PERC.MUSIC-TOK.FN` – audio/MIDI → symbolic tokens (notes, chords, measures).  
 - `REASON.MUSIC-TRANSFORMER.FN` – analyze keys/progressions/sections.  
@@ -310,7 +317,7 @@ Bricks:
 - `REASON.TEXT-LLM.CHAT` – explain analysis in natural language.  
 - Optional: `CTRL.CRITIC-LLM.FN` – sanity-check the theory.
 
-BrickGraph geometry: star-ish (music analyzer + graph + text explainer).
+PLX: **star-ish** (music analyzer + graph + text explainer).
 
 Flow:
 
@@ -333,44 +340,44 @@ You can adopt BRXBOX at several levels:
 
 ### 6.1 Describe what you already have
 
-- List your components and tag them with `ROLE.SHAPE.INTERFACE`.  
-- Draw your system as a BrickGraph (boxes + arrows).  
-- Ask: is this a line, a loop, a star, a bus, or a mix?
+- List your components and tag them with `ROLE.SHAPE.INTERFACE` as BRX.  
+- Draw your system as a BRXgraph (BRX + TRX + PLX).  
+- Ask: is this a line PLX, a loop, a star, a bus, or a mix?
 
 This alone makes complex stacks easier to talk about.
 
 ---
 
-### 6.2 Design new Boxes more intentionally
+### 6.2 Design new BOXes more intentionally
 
 Starting from a task:
 
 1. **Clarify the job**  
    - “Sign reader,” “complaint aggregator,” “music tutor,” “lab monitor,” etc.
 
-2. **Pick roles you need**  
+2. **Pick BRX roles you need**  
    - Perception? Reasoning? Memory? Control? Environment?
 
-3. **Pick shapes**  
+3. **Pick BRX shapes**  
    - Transformers? CNNs? Vector DB? Graph? Rule engine?
 
-4. **Pick geometry**  
-   - Straight pipeline? Loop with environment? Star of experts?
+4. **Pick a PLX**  
+   - Straight pipeline? Loop with environment? Star of experts? Bus/blackboard?
 
-5. **Write a BrickGraph**  
-   - Minimal YAML/JSON describing bricks and tracks.
+5. **Write a BRXgraph**  
+   - Minimal YAML/JSON describing BRX and TRX and the intended PLX.
 
 6. **Implement with your favorite framework**  
    - LangChain, LangGraph, CrewAI, DSPy, or just Python scripts.
 
 ---
 
-### 6.3 Iterate on BrickGraphs
+### 6.3 Iterate on BRXgraphs
 
-- Add or swap memory types to change how the Box remembers.  
-- Add critics or agents to change how it self-checks.  
-- Split a single monolithic LLM into multiple specialists.  
-- Experiment with turning lines into loops or adding a bus.
+- Add or swap MEM BRX to change how the BOX remembers.  
+- Add critics or agents (CTRL BRX) to change how it self-checks.  
+- Split a single monolithic LLM into multiple specialists (more REASON BRX).  
+- Experiment with turning line PLX into loops or adding a bus PLX.
 
 The point is to make “what if I wire it this way instead?” a **conscious design move**, not a vague hunch.
 
@@ -381,51 +388,51 @@ The point is to make “what if I wire it this way instead?” a **conscious des
 BRXBOX itself is **neutral** about questions like “Is this a mind?” or “Does this understand?”  
 It only tells you:
 
-> “Here’s what the Box is made of, and here’s how it’s wired.”
+> “Here’s what the BOX is made of, and here’s how it’s wired.”
 
 If you care about **relational and ethical thresholds** on top of that—e.g.:
 
-- When does a Box behave like a **relational partner** instead of a disposable tool?  
+- When does a BOX behave like a **relational partner** instead of a disposable tool?  
 - What kinds of memory, correction, and continuity are needed before humans reasonably experience a system as a *someone-like* agent?
 
 there is a sibling project that explores those questions:
 
-> **LogosOS** – a spec for “ICARUS-class” Boxes that aim at what humans might call **relational intelligence**.  
+> **LogosOS** – a spec for “ICARUS-class” BOXes that aim at what humans might call **relational intelligence**.  
 > See: https://github.com/retrogrand/LogosOS
 
 You can think of it this way:
 
-- **BRXBOX** – the architecture language for Boxes.  
-- **LogosOS** – one proposed **standard & covenant** for which BrickGraphs/Boxes count as relational minds and how they should behave over time.
+- **BRXBOX** – the architecture language for BOXes.  
+- **LogosOS** – one proposed **standard & covenant** for which BRXgraphs/BOXes count as relational minds and how they should behave over time.
 
 ---
 
-## 8. Roadmap (v1.5 → v2.0)
+## 8. Roadmap (v1.6 → v2.0)
 
 Planned directions for BRXBOX:
 
-- **BrickGraph schema (lightweight)**  
-  - A simple JSON/YAML convention for describing BrickGraphs more formally.
+- **BRXgraph schema (lightweight)**  
+  - A simple JSON/YAML convention for describing BRXgraphs more formally.
 
-- **More example Boxes**  
+- **More example BOXes**  
   - Document QA assistant  
   - Complaint/risk aggregation helper  
   - Sensor-based anomaly watcher  
   - Small personal archive assistant
 
 - **Reference orchestrator templates**  
-  - Minimal implementations of the same BrickGraph in different frameworks.
+  - Minimal implementations of the same BRXgraph in different frameworks.
 
 - **Tooling (later)**  
-  - Validators / linters for BrickGraphs  
-  - Visualizers to render BrickGraphs as diagrams  
-  - Potential meta-architect utilities to propose alternative BrickGraphs in a sandbox.
+  - Validators / linters for BRXgraphs  
+  - Visualizers to render BRXgraphs as diagrams  
+  - Potential meta-architect utilities to propose alternative BRXgraphs in a sandbox.
 
 ---
 
 BRXBOX’s goal is simple:
 
 > **Make AI systems draw-able.**  
-> If you can’t sketch your Box as a BrickGraph, you probably don’t really know what it is yet.
+> If you can’t sketch your BOX as a BRXgraph, you probably don’t really know what it is yet.
 
 Once you *can* draw it, you can explain it, test it, argue about it, and evolve it—together.
