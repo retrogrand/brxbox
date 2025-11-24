@@ -1,4 +1,4 @@
-# BRXBOX ⧉ A Design Model for Synthetic Cognition
+# 🧱 BRXBOX ⧉ A Design Model for Synthetic Cognition
 
 Snap together AI bricks into BRXgraphs and observe what mind takes shape inside.
 
@@ -6,7 +6,7 @@ _Status: v0.2.0 (alpha design model)_
 
 ---
 
-## 0. What is BRXBOX?
+## 🧩 0. What is BRXBOX?
 
 BRXBOX is a **design model for synthetic cognition**: a way to **design AI systems as modular assemblies**, not as single sealed black boxes.
 
@@ -31,9 +31,9 @@ In one sentence:
 
 ---
 
-## 1. Core concepts & naming
+## 📚 1. Core concepts & naming
 
-### 1.1 BRX, TRX, PLX, BRXgraphs, BOXes
+### 🧱 1.1 BRX, TRX, PLX, BRXgraphs, BOXes
 
 - **BRX (bricks)** – single modules with a clear role, model shape, and interface.  
 - **TRX (tracks)** – connections describing how data/control moves from one BRX to another.  
@@ -47,7 +47,7 @@ BRXBOX (the project) is the design model and pattern language you use to do that
 
 ---
 
-### 1.2 BRX IDs: ROLE.SHAPE.INTERFACE
+### 🏷️ 1.2 BRX IDs: ROLE.SHAPE.INTERFACE
 
 Each BRX gets a compact ID:
 
@@ -71,7 +71,7 @@ This naming scheme is easy to read, grep, and copy-paste into configs.
 
 ---
 
-### 1.3 SCOPE: how “far” a BRX can see
+### 🌍 1.3 SCOPE: how “far” a BRX can see
 
 Alongside `ROLE.SHAPE.INTERFACE`, you can optionally tag a BRX with a **scope**:
 
@@ -90,7 +90,7 @@ Scope doesn’t introduce new math; it just makes it explicit **which BRX are lo
 
 ---
 
-### 1.4 A minimal BRXgraph example
+### 🪧 1.4 A minimal BRXgraph example
 
 Here’s a tiny BRXgraph YAML for a simple “sign reader” BOX:
 
@@ -125,7 +125,7 @@ You can extend this BRXgraph with memory BRX, critics, or control loops without 
 
 ---
 
-## 2. BRX taxonomy cheat sheet
+## 🧮 2. BRX taxonomy cheat sheet
 
 Here’s a quick cheat sheet of common BRX patterns you can copy into your own designs.
 
@@ -152,7 +152,7 @@ You’re free to define your own roles/shapes as long as you’re consistent.
 
 ---
 
-## 3. Memory stacks across time
+## 🧠 3. Memory stacks across time
 
 BRXBOX encourages explicit **time-layered memory** instead of one vague “DB”. You model different kinds of MEM BRX:
 
@@ -186,7 +186,7 @@ Some **CTRL** or **ARCH** BRX may operate in **slow time** (e.g. nightly jobs th
 
 ---
 
-## 4. PLX: how BOXes are wired
+## 🕸️ 4. PLX: how BOXes are wired
 
 Any full system is a **BRXgraph**: a set of BRX connected by TRX arranged in some **PLX** (plex).  
 
@@ -199,7 +199,7 @@ You don’t have to name depth formally yet, but it helps to *think* in those te
 
 ---
 
-### 4.1 Line PLX – simple pipelines
+### 📏 4.1 Line PLX – simple pipelines
 
     PERC → REASON → GEN
 
@@ -212,7 +212,7 @@ Lines are great for “input → interpret → output” tasks.
 
 ---
 
-### 4.2 Loop PLX – control circuits
+### 🔁 4.2 Loop PLX – control circuits
 
     PERC → CTRL.POLICY → ENV → PERC → …
 
@@ -228,7 +228,7 @@ Some loops are **fast-time** (turn-by-turn interaction); others are **slow-time*
 
 ---
 
-### 4.3 Star PLX – many experts, one conductor
+### ✴️ 4.3 Star PLX – many experts, one conductor
 
 Multiple specialists around a core controller:
 
@@ -243,7 +243,7 @@ Star PLX captures “chorus of experts with a conductor” architectures.
 
 ---
 
-### 4.4 Bus / Blackboard PLX – shared hub
+### 🚌 4.4 Bus / Blackboard PLX – shared hub
 
 BRX read and write via a shared memory/environment hub:
 
@@ -258,7 +258,7 @@ Bus/blackboard plexes fit well with multi-agent or multi-skill BOXes.
 
 ---
 
-### 4.5 Core + Shell PLX (nested)
+### 🧬 4.5 Core + Shell PLX (nested)
 
 Many “agent-y” BOXes feel like:
 
@@ -279,7 +279,7 @@ You don’t need new syntax yet; just be aware that **some BRXgraphs are natural
 
 ---
 
-### 4.6 Small PLX motifs: triads and squares
+### 🎛️ 4.6 Small PLX motifs: triads and squares
 
 Some small plexes show up repeatedly inside bigger BRXgraphs:
 
@@ -306,9 +306,9 @@ You’ll see these PLX motifs inside bigger BRXgraphs all the time.
 
 ---
 
-## 5. Example BOXes
+## 🎯 5. Example BOXes
 
-### 5.1 Street Sign Buddy → Street Sign Lorekeeper
+### 🚏 5.1 Street Sign Buddy → Street Sign Lorekeeper
 
 **BOX A: Street Sign Buddy**
 
@@ -362,7 +362,7 @@ Same core BRX, different PLX + memory = different *feel*.
 
 ---
 
-### 5.2 Music Critic BOX
+### 🎵 5.2 Music Critic BOX
 
 Goal: listen to a piece of music and explain its structure/theory.
 
@@ -391,11 +391,11 @@ As the graph fills, you can add stylistic comments grounded in actual recurrence
 
 ---
 
-## 6. Using BRXBOX in your own projects
+## 🧰 6. Using BRXBOX in your own projects
 
 You can adopt BRXBOX at several levels.
 
-### 6.1 Describe what you already have
+### 🔍 6.1 Describe what you already have
 
 - List your components and tag them with `ROLE.SHAPE.INTERFACE` as BRX (optionally add `SCOPE`).  
 - Draw your system as a BRXgraph (BRX + TRX + PLX).  
@@ -405,7 +405,7 @@ This alone makes complex stacks easier to talk about.
 
 ---
 
-### 6.2 Design new BOXes more intentionally
+### 🧭 6.2 Design new BOXes more intentionally
 
 Starting from a task:
 
@@ -429,7 +429,7 @@ Starting from a task:
 
 ---
 
-### 6.3 Iterate on BRXgraphs
+### 🔁 6.3 Iterate on BRXgraphs
 
 - Add or swap MEM BRX to change how the BOX remembers.  
 - Add critics or agents (CTRL BRX) to change how it self-checks.  
@@ -441,7 +441,7 @@ The point is to make “what if I wire it this way instead?” a **conscious des
 
 ---
 
-## 7. LogosOS, ICARUS, and relational intelligence
+## ⚭ 7. LogosOS, ICARUS, and relational intelligence
 
 BRXBOX itself is **neutral** about questions like “Is this a mind?” or “Does this understand?”  
 It only tells you:
@@ -472,7 +472,7 @@ plus Δ-ledger style logging over time. BRXBOX doesn’t require you to build th
 
 ---
 
-## 8. Roadmap (toward v0.3.x)
+## 🛠️ 8. Roadmap (toward v0.3.x)
 
 Planned directions for BRXBOX:
 
