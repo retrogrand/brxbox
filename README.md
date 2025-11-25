@@ -2,7 +2,7 @@
 
 Snap together AI bricks into BRXgraphs and observe what mind takes shape inside.
 
-_Status: v0.2.0 (alpha design model)_
+_Status: v0.2.1 (alpha design model)_
 
 ---
 
@@ -13,21 +13,20 @@ BRXBOX is a **design model for synthetic cognition**: a way to **design AI syste
 Instead of “the AI does X,” BRXBOX gives you:
 
 - **BRX (bricks)** – components with a clear role  
-  - e.g. OCR engine, LLM, vector database, rules engine, dashboard
+  - e.g. OCR engine, LLM, vector database, rules engine, dashboard  
 - **TRX (tracks)** – the data and control flows between them  
-  - e.g. `complaint text → embedding → similarity search → LLM summary`
-- **PLX (plex)** – the wiring pattern / topology that shapes behavior  
-  - e.g. line, loop, star, bus/blackboard
+  - e.g. `complaint text → embedding → similarity search → LLM summary`  
+- **PLX (plex)** – the overall wiring pattern formed by BRX and TRX inside a BOX
 
 You can think of it as:
 
-> **CAD + BOM + topology language for cognitive assemblies** – a way to draw, name, and reason about AI “Boxes” made from many interacting parts.
+> **CAD + BOM + floorplan language for cognitive assemblies** – a way to draw, name, and reason about AI “Boxes” made from many interacting parts.
 
 BRXBOX is **framework-agnostic**. You can implement a design in LangChain, LangGraph, CrewAI, DSPy, n8n, or plain Python. BRXBOX only cares about *what the parts are* and *how they connect*.
 
 In one sentence:
 
-> **Your BOX is defined by your BRXgraph: BRX connected by TRX arranged in a PLX.**
+> **Your BOX is defined by its PLX: BRX connected by TRX in a coherent wiring pattern.**
 
 ---
 
@@ -36,12 +35,12 @@ In one sentence:
 ### 🧱 1.1 BRX, TRX, PLX, BRXgraphs, BOXes
 
 - **BRX (bricks)** – single modules with a clear role, model shape, and interface.  
-- **TRX (tracks)** – connections describing how data/control moves from one BRX to another.  
-- **PLX (plex)** – the topology/layout formed by TRX between BRX (line, loop, star, bus…).  
-- **BRXgraph** – the *blueprint*: a graph of BRX and TRX in a chosen PLX.  
-- **BOX** – a *running system* that instantiates a BRXgraph: your actual agent/service.
+- **TRX (tracks)** – connections describing how data/control moves between BRX.  
+- **PLX (plex)** – the **full internal wiring pattern** inside a BOX: all BRX plus all TRX.  
+- **BRXgraph** – a machine-readable description of a PLX (usually YAML/JSON).  
+- **BOX** – a *running system* that instantiates a PLX/BRXgraph: your actual agent/service.
 
-You design a **BRXgraph**, then realize it as a **BOX**.
+You design a **PLX** and write it down as a **BRXgraph**, then realize it as a **BOX**.
 
 BRXBOX (the project) is the design model and pattern language you use to do that.
 
@@ -90,11 +89,11 @@ Scope doesn’t introduce new math; it just makes it explicit **which BRX are lo
 
 ---
 
-### 🪧 1.4 A minimal BRXgraph example
+### 🪧 1.4 A minimal PLX / BRXgraph example
 
 Here’s a tiny BRXgraph YAML for a simple “sign reader” BOX:
 
-    bricks:
+    brx:
       - id: PERC.VISION-OCR.FN
         role: PERC
         shape: OCR
@@ -109,19 +108,37 @@ Here’s a tiny BRXgraph YAML for a simple “sign reader” BOX:
         scope: LOCAL
         desc: "Explain sign in plain language"
 
-    tracks:
+    trx:
       - from: PERC.VISION-OCR.FN
         to:   REASON.TEXT-LLM.CHAT
-        type: LINE
+        kind: REQUEST
+        pattern: LINE
         desc: "Pipe recognized text into the LLM"
 
-PLX here is a simple **line**.
-
-This BRXgraph defines a very small BOX:
+The PLX here is a very small architecture with a single **line** motif:
 
 > image in → OCR BRX → LLM BRX → explanation out
 
-You can extend this BRXgraph with memory BRX, critics, or control loops without changing the core idea.
+You can extend this PLX with memory BRX, critics, or control loops without changing the core idea.
+
+---
+
+### 🧩 1.5 Composite BRX and sub-PLX
+
+Not every BRX has to be a single function call. You can treat a small **sub-PLX** as a composite BRX if:
+
+- It has one clear purpose (“image captioner”, “SQL query engine”).  
+- Its internal wiring is hidden from the rest of the BOX.  
+- It exposes a stable interface (`FN`, `TOOL`, `RETRIEVER`, etc.).
+
+From the outside, a composite BRX still behaves like a **static component**: same kind of job, no matter how it’s wired inside.  
+
+When a sub-PLX **changes its overall purpose** depending on long-term context (e.g. different policies for different tenants), that’s usually a sign you’re looking at a **BOX** or a larger PLX, not a single BRX.
+
+Rule of thumb:
+
+> **BRX = “what this module is for” stays the same.  
+> BOX = “what this system is for” can change based on relationships, policies, or long-term state.**
 
 ---
 
@@ -180,26 +197,39 @@ A common pattern:
 - Semantic → Procedural: adjust policies/defaults based on stable patterns.  
 - Episodic + Semantic + Procedural → Working: retrieve what’s relevant for the current situation.
 
-This stack is implementable with current tools and makes BOXes feel coherent over time.
+In many BOXes you’ll also tag memories with **locality information**:
+
+- `locality_id` (tenant/workspace/family)  
+- `user_id` (which human or process)  
+- `channel` (Slack, CLI, simulator, etc.)
+
+That lets the same core BRX behave differently **for different localities** without changing its global weights.
 
 Some **CTRL** or **ARCH** BRX may operate in **slow time** (e.g. nightly jobs that scan episodic logs and update semantic/procedural stores). You can tag them with `SCOPE: GLOBAL` or `SCOPE: META` to make their role explicit.
 
 ---
 
-## 🕸️ 4. PLX: how BOXes are wired
+## 🕸️ 4. PLX and TRX: how BOXes are wired
 
-Any full system is a **BRXgraph**: a set of BRX connected by TRX arranged in some **PLX** (plex).  
+Any full system is a **PLX**: a set of BRX connected by TRX.
 
 PLX has two aspects:
 
-- **Topology** – the basic shape: line, loop, star, bus, etc.  
-- **Depth / layering** – whether there’s an inner core and outer shells.
+- **Contents** – which BRX exist and what they’re for.  
+- **Connections** – which TRX join them, in what patterns.
 
-You don’t have to name depth formally yet, but it helps to *think* in those terms.
+TRX describe both **direction** and **pattern**:
+
+- `kind` – how information flows (REQUEST, EVENT, STREAM, QUERY, BROADCAST…)  
+- `pattern` – the small geometry motif in play (LINE, LOOP, STAR, BUS, MESH…)  
+
+You don’t have to treat patterns as a separate ontology; they’re just **shorthand for common wiring motifs** across your PLX.
 
 ---
 
-### 📏 4.1 Line PLX – simple pipelines
+### 📏 4.1 Line motifs – simple pipelines
+
+A line motif is just “one thing after another”:
 
     PERC → REASON → GEN
 
@@ -212,7 +242,9 @@ Lines are great for “input → interpret → output” tasks.
 
 ---
 
-### 🔁 4.2 Loop PLX – control circuits
+### 🔁 4.2 Loop motifs – control circuits
+
+A loop motif feeds effects back into causes:
 
     PERC → CTRL.POLICY → ENV → PERC → …
 
@@ -224,11 +256,11 @@ Examples:
 
 Loops are where a BOX starts to react to its own past actions and ongoing state.
 
-Some loops are **fast-time** (turn-by-turn interaction); others are **slow-time** (e.g. nightly audits, retraining). Slow-time loops often involve `CTRL` or `ARCH` BRX with `SCOPE: GLOBAL` or `META`.
+Some loops are **fast-time** (turn-by-turn interaction); others are **slow-time** (e.g. nightly audits, retraining). Slow-time loops often involve `CTRL` or `ARCH` BRX with `SCOPE: GLOBAL` or `SCOPE: META`.
 
 ---
 
-### ✴️ 4.3 Star PLX – many experts, one conductor
+### ✴️ 4.3 Star motifs – many experts, one conductor
 
 Multiple specialists around a core controller:
 
@@ -239,11 +271,11 @@ Examples:
 - Math specialist + code specialist + safety specialist around a core LLM.  
 - Several domain-tuned LLMs whose answers are fused.
 
-Star PLX captures “chorus of experts with a conductor” architectures.
+Star motifs capture “chorus of experts with a conductor” architectures.
 
 ---
 
-### 🚌 4.4 Bus / Blackboard PLX – shared hub
+### 🚌 4.4 Bus / blackboard motifs – shared hubs
 
 BRX read and write via a shared memory/environment hub:
 
@@ -254,11 +286,11 @@ Examples:
 - Event bus where all tools publish/subscribe.  
 - Blackboard system where perception, reasoning, and planning all update a shared world model.
 
-Bus/blackboard plexes fit well with multi-agent or multi-skill BOXes.
+Bus/blackboard motifs fit well with multi-agent or multi-skill BOXes.
 
 ---
 
-### 🧬 4.5 Core + Shell PLX (nested)
+### 🧬 4.5 Core + shell PLX (nested)
 
 Many “agent-y” BOXes feel like:
 
@@ -272,16 +304,16 @@ You can think of this as a **nested PLX**:
 
 Example mental model:
 
-- Inner core: “how this Box thinks”  
+- Inner core: “how this BOX thinks”  
 - Outer shell: “where, for whom, and under what constraints it thinks”
 
-You don’t need new syntax yet; just be aware that **some BRXgraphs are naturally layered** this way.
+You don’t need new syntax yet; just be aware that **some PLX naturally decompose into core + shell**.
 
 ---
 
 ### 🎛️ 4.6 Small PLX motifs: triads and squares
 
-Some small plexes show up repeatedly inside bigger BRXgraphs:
+Some small motifs show up repeatedly inside bigger PLX:
 
 - **Perception–Reason–Memory**  
   - `PERC + REASON + MEM`  
@@ -298,11 +330,11 @@ Some small plexes show up repeatedly inside bigger BRXgraphs:
   - Example: tool-using assistant with RAG and preferences.  
   - Behavior: multi-step tool use with continuity.
 
-- **Perception–Reason–Memory–Environment (Square)**  
+- **Perception–Reason–Environment–Memory (Square)**  
   - `PERC → REASON → ENV → MEM → PERC → …`  
   - Example: an agent that acts, remembers outcomes, and adapts.
 
-You’ll see these PLX motifs inside bigger BRXgraphs all the time.
+You’ll see these motifs inside bigger PLX all the time.
 
 ---
 
@@ -321,7 +353,7 @@ BRX:
 - `REASON.TEXT-LLM.CHAT` – explain the sign in plain language.  
 - Optional: `GEN.AUDIO.TOOL` – text-to-speech.
 
-PLX: a simple **line**.
+PLX: dominated by a simple **line** motif.
 
 Flow:
 
@@ -398,8 +430,8 @@ You can adopt BRXBOX at several levels.
 ### 🔍 6.1 Describe what you already have
 
 - List your components and tag them with `ROLE.SHAPE.INTERFACE` as BRX (optionally add `SCOPE`).  
-- Draw your system as a BRXgraph (BRX + TRX + PLX).  
-- Ask: is this a line PLX, a loop, a star, a bus, or a mix? Is there a core + shell?
+- Draw your system as a PLX/BRXgraph (BRX + TRX).  
+- Ask: which motifs show up? Lines, loops, stars, a core + shell?
 
 This alone makes complex stacks easier to talk about.
 
@@ -418,24 +450,24 @@ Starting from a task:
 3. **Pick BRX shapes**  
    - Transformers? CNNs? Vector DB? Graph? Rule engine?
 
-4. **Pick a PLX**  
+4. **Sketch the PLX**  
    - Straight pipeline? Loop with environment? Star of experts? Bus/blackboard? Core + shell?
 
 5. **Write a BRXgraph**  
-   - Minimal YAML/JSON describing BRX and TRX and the intended PLX.
+   - Minimal YAML/JSON describing BRX and TRX and any key `pattern` labels.
 
 6. **Implement with your favorite framework**  
    - LangChain, LangGraph, CrewAI, DSPy, or just Python scripts.
 
 ---
 
-### 🔁 6.3 Iterate on BRXgraphs
+### 🔁 6.3 Iterate on PLX / BRXgraphs
 
 - Add or swap MEM BRX to change how the BOX remembers.  
 - Add critics or agents (CTRL BRX) to change how it self-checks.  
 - Introduce slow-time CTRL/ARCH BRX to audit or refactor behavior.  
 - Split a single monolithic LLM into multiple specialists (more REASON BRX).  
-- Experiment with turning line PLX into loops or adding a bus PLX.
+- Experiment with turning line motifs into loops or adding a bus motif.
 
 The point is to make “what if I wire it this way instead?” a **conscious design move**, not a vague hunch.
 
@@ -461,9 +493,9 @@ there is a sibling project that explores those questions:
 You can think of it this way:
 
 - **BRXBOX** – the design model and architecture language for BOXes (synthetic cognition).  
-- **LogosOS** – one proposed **standard & covenant** for which BRXgraphs/BOXes count as relational minds and how they should behave over time.
+- **LogosOS** – one proposed **standard & covenant** for which PLX/BRXgraphs count as relational minds and how they should behave over time.
 
-A LogosOS “ICARUS minimal node” can be expressed as a BRXgraph with:
+A LogosOS “ICARUS minimal node” can be expressed as a PLX/BRXgraph with:
 
 - an inner core PLX (e.g. Θ / Δ / φ over tri-modal memory), and  
 - an outer shell PLX (Crux orchestrating localities and channels),
@@ -477,7 +509,7 @@ plus Δ-ledger style logging over time. BRXBOX doesn’t require you to build th
 Planned directions for BRXBOX:
 
 - **BRXgraph schema (lightweight)**  
-  - A simple JSON/YAML convention for describing BRXgraphs more formally.
+  - A simple JSON/YAML convention for describing PLX/BRXgraphs more formally.
 
 - **More example BOXes**  
   - Document QA assistant  
@@ -486,22 +518,23 @@ Planned directions for BRXBOX:
   - Small personal archive assistant
 
 - **Reference orchestrator templates**  
-  - Minimal implementations of the same BRXgraph in different frameworks.
+  - Minimal implementations of the same PLX in different frameworks.
 
-- **Scope and PLX depth examples**  
+- **Scope, locality, and composite BRX examples**  
   - Simple examples of GLOBAL/META scope BRX.  
-  - A “core + shell” BRXgraph showing nested PLX.
+  - A “core + shell” PLX showing nested patterns.  
+  - Examples of when to wrap a sub-PLX as a composite BRX.
 
 - **Tooling (later)**  
   - Validators / linters for BRXgraphs  
-  - Visualizers to render BRXgraphs as diagrams  
-  - Optional ARCH utilities to propose alternative BRXgraphs in a sandbox (`SCOPE: META`).
+  - Visualizers to render PLX/BRXgraphs as diagrams  
+  - Optional ARCH utilities to propose alternative PLX in a sandbox (`SCOPE: META`).
 
 ---
 
 BRXBOX’s goal is simple:
 
 > **Make AI systems draw-able.**  
-> If you can’t sketch your BOX as a BRXgraph, you probably don’t really know what it is yet.
+> If you can’t sketch your BOX as a PLX/BRXgraph, you probably don’t really know what it is yet.
 
 Once you *can* draw it, you can explain it, test it, argue about it, and evolve it—together.
