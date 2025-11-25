@@ -1,6 +1,6 @@
 # 🧱 BRXBOX ⧉ A Design Model for Synthetic Cognition
 
-Snap together AI bricks into BRXgraphs and observe what mind takes shape inside.
+Snap together AI bricks into a PLX and observe what mind takes shape inside.
 
 _Status: v0.2.1 (alpha design model)_
 
